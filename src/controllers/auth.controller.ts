@@ -27,6 +27,12 @@ export const registerHanler = async (req: Request, res: Response) => {
 
         await user.save()
         const token = jwt.sign({ email, sub: user._id }, jwt_secret)
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
         res.json({ message: "Register success", token })
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -56,7 +62,12 @@ export const loginHanler = async (req: Request, res: Response) => {
         if (!checkPassword) throw new Error("Password is incorrect")
 
         const token = jwt.sign({ email, sub: existingUser._id }, jwt_secret)
-
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
         res.json({ message: "Login success !", token })
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -72,4 +83,24 @@ export const loginHanler = async (req: Request, res: Response) => {
     }
 }
 
+export const getUserHanler = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user
+        const user = await User.findById(userId)
+        if (!user) throw new Error("User not found")
+            
+        const userData = {
+            email: user.email,
+            name: user.name
+        }
 
+        res.json({ user: userData })
+    } catch (error) {
+        console.log(error)
+        if (error instanceof Error) {
+            const errorMsg = error.message
+            res.status(errorMsg === "User not found" ? 404 : 400).json({ message: errorMsg })
+            return
+        }
+    }
+}

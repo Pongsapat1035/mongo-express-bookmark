@@ -88,7 +88,7 @@ export const getUserHanler = async (req: Request, res: Response) => {
         const userId = req.user
         const user = await User.findById(userId)
         if (!user) throw new Error("User not found")
-            
+
         const userData = {
             email: user.email,
             name: user.name

@@ -157,7 +157,7 @@ CTestTestfile.cmake
 cmake_install.cmake
 install_manifest.txt
 *.cbp
-
+/dist
 # === Global Rules ===
 # Keep last to avoid being excluded
 *.pyc

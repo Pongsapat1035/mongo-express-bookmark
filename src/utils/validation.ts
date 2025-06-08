@@ -28,7 +28,6 @@ export const isEmpty = (obj: Object) => {
             return false;
         }
     }
-
     return true;
 }
 

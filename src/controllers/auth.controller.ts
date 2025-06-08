@@ -22,11 +22,11 @@ export const registerHanler = async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10)
         const user = new User({
-            email, password: hashedPassword, name
+            email, password: hashedPassword, name, whitelist: []
         })
 
         await user.save()
-        const token = jwt.sign({ email, sub: user._id }, jwt_secret)
+        const token = jwt.sign({ email, sub: user._id }, jwt_secret, { expiresIn: '1h' })
         res.cookie('token', token, {
             httpOnly: true,
             secure: false,
@@ -61,7 +61,7 @@ export const loginHanler = async (req: Request, res: Response) => {
         const checkPassword = await bcrypt.compare(password, hashedPassword)
         if (!checkPassword) throw new Error("Password is incorrect")
 
-        const token = jwt.sign({ email, sub: existingUser._id }, jwt_secret)
+        const token = jwt.sign({ email, sub: existingUser._id }, jwt_secret, { expiresIn: '1h' })
         res.cookie('token', token, {
             httpOnly: true,
             secure: false,
@@ -91,7 +91,8 @@ export const getUserHanler = async (req: Request, res: Response) => {
 
         const userData = {
             email: user.email,
-            name: user.name
+            name: user.name,
+            whitelist: user.whitelist
         }
 
         res.json({ user: userData })

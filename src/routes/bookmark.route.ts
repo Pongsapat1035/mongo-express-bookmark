@@ -4,8 +4,7 @@ import { createBookmark, getPublicBookmarks, getPublicBookmarkDetail, deleteBook
 
 const bookmark = express.Router()
 
-// get all book if public
-// get book
+
 bookmark.get('/public', getPublicBookmarks)
 bookmark.get('/public/:id', getPublicBookmarkDetail)
 
@@ -13,8 +12,9 @@ bookmark.use(checkAuth)
 bookmark.post('/create', createBookmark)
 bookmark.get('/me', getMyBookmark)
 bookmark.get('/me/:id', getMyBookmarkDetail)
-bookmark.delete('/:id', deleteBookmark) 
 bookmark.patch('/:id', updateBookmark)
+bookmark.delete('/:id', deleteBookmark)
+
 
 
 export default bookmark

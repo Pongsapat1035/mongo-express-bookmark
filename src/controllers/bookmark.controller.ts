@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Bookmark } from "../schemas/bookmart.schema";
 import { validateCreateBookmark, allowedUpdateBookmarkField } from "../utils/validation";
-import { getAllowedField } from "../utils/bookmark";
 import { z } from 'zod'
 import mongoose from "mongoose";
 
@@ -38,7 +37,15 @@ export const createBookmark = async (req: Request, res: Response) => {
 
 export const getPublicBookmarks = async (req: Request, res: Response) => {
     try {
-        const bookmarks = await Bookmark.find({ isPublic: true }).populate("userId")
+        const { search, tags } = req.query
+        const filter: any = { isPublic: true };
+        if (tags) {
+            filter.tags = { $in: Array.isArray(tags) ? tags : [tags] };
+        }
+        if (search) {
+            filter.title = { $regex: search, $options: 'i' };
+        }
+        const bookmarks = await Bookmark.find(filter).populate("userId")
         res.status(200).json({ data: bookmarks })
     } catch (error) {
         console.log(error)
@@ -96,7 +103,8 @@ export const updateBookmark = async (req: Request, res: Response) => {
         if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid id")
 
         const bookmarkData = allowedUpdateBookmarkField(req.body)
-        res.json({ bookmarkData })
+        const response = await Bookmark.findByIdAndUpdate(id, bookmarkData, { new: true })
+        res.json({ message: "Update bookmark success", updateField: bookmarkData, newBookmark: response })
     } catch (error) {
         console.log(error)
         if (error instanceof z.ZodError) {

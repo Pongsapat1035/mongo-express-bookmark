@@ -28,6 +28,7 @@ This project includes user authentication, bookmark management, whitelist functi
 ---
 
 ## 🔗 API Endpoints
+Postman Doc : https://documenter.getpostman.com/view/37893632/2sB2x3oDep
 
 ### 🔐 Auth
 

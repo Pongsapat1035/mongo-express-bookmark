@@ -1,9 +1,16 @@
 import express from 'express'
-import { checkAuth } from '../middleware/checkuser'
-import { createBookmark, getPublicBookmarks, getPublicBookmarkDetail, deleteBookmark, getMyBookmark, getMyBookmarkDetail, updateBookmark } from '../controllers/bookmark.controller'
+import { checkAuth } from '../middleware/checkAuth'
+import {
+    createBookmark,
+    getPublicBookmarks,
+    getPublicBookmarkDetail,
+    deleteBookmark,
+    getMyBookmark,
+    getMyBookmarkDetail,
+    updateBookmark
+} from '../controllers/bookmark.controller'
 
 const bookmark = express.Router()
-
 
 bookmark.get('/public', getPublicBookmarks)
 bookmark.get('/public/:id', getPublicBookmarkDetail)

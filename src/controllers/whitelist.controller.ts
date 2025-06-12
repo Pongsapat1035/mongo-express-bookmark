@@ -1,56 +1,54 @@
-import { Request, Response } from "express"
-import { User } from "../schemas/user.schema"
+import { NextFunction, Request, Response } from "express"
 import mongoose from "mongoose"
 
-export const getAllWhitelists = async (req: Request, res: Response) => {
+import { User } from "../models/user.schema"
+import { AppError } from "../utils/errors/appError"
+
+export const getAllWhitelists = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.user
         const result = await User.findById(userId).populate('whitelist')
-        if (!result) throw new Error('Not found')
+        if (!result) throw new AppError('Bookmark not found', 404)
 
         const { whitelist } = result
-        res.json({ data: whitelist })
+        res.json({ success: true, data: whitelist })
     } catch (error) {
-        console.log(error)
-        if (error instanceof Error)
-            res.status(400).json({ message: error.message })
+        next(error)
     }
 }
-export const addToWhitelist = async (req: Request, res: Response) => {
+
+export const addToWhitelist = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { bookmarkId } = req.body
         const userId = req.user
-        if (!mongoose.Types.ObjectId.isValid(bookmarkId)) throw new Error("Invalid id")
+        if (!mongoose.Types.ObjectId.isValid(bookmarkId)) throw new AppError("Invalid id")
 
         const response = await User.findByIdAndUpdate(userId, {
             $addToSet: { whitelist: bookmarkId }
         }, { new: true });
 
-        if (!response) throw new Error('User not found');
+        if (!response) throw new AppError('User not found', 404);
 
-        res.status(200).json({ message: 'Bookmark saved to whitelist (if not already).', whitelist: response });
+        res.status(200).json({ success: true, message: 'Bookmark saved to whitelist (if not already).', whitelist: response });
 
     } catch (error) {
-        console.log(error)
-        if (error instanceof Error)
-            res.status(400).json({ message: error.message })
+        next(error)
     }
 }
-export const removeWhitelist = async (req: Request, res: Response) => {
+
+export const removeWhitelist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params
+        const { bookmarkId } = req.params
+        if (!mongoose.Types.ObjectId.isValid(bookmarkId)) throw new AppError("Invalid id")
+
         const userId = req.user
-        if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid id")
-
         const response = await User.findByIdAndUpdate(userId, {
-            $pull: { whitelist: id }
+            $pull: { whitelist: bookmarkId }
         });
-        if (!response) throw new Error("bookmark not found")
+        if (!response) throw new AppError("bookmark not found", 404)
 
-        res.json({ id, message: "Delete bookmark success" })
+        res.json({ success: true, bookmarkId, message: "Delete bookmark success" })
     } catch (error) {
-        console.log(error)
-        if (error instanceof Error)
-            res.status(400).json({ message: error.message })
+        next(error)
     }
 }

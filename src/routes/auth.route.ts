@@ -1,6 +1,7 @@
 import express from 'express'
 import { registerHanler, loginHanler, getUserHanler } from '../controllers/auth.controller'
-import { checkAuth } from '../middleware/checkuser'
+import { checkAuth } from '../middleware/checkAuth'
+
 const auth = express.Router()
 
 auth.post('/register', registerHanler)
